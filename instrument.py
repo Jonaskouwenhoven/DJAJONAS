@@ -66,9 +66,9 @@ class Instrument:
 		self.gen+= 1
   
 	def adjustConfig(self):
-
+		print(self.input)
 		config = configparser.ConfigParser()
-		config.read("config/config_orgel")
+		config.read("config/config_original")
 
 		config['DefaultGenome']['num_inputs'] = str(len(self.input))
 		config['DefaultGenome']['num_outputs'] = str((self.outputs))

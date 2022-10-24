@@ -6,9 +6,9 @@ from util import *
 from instrument import Instrument
 
 INSTRUMENTDICT = {9:"Drum", 4:"Orgel", 2:"Bass", 8:"Synth", 3:"Guitar"}
-INSTRUMENTOUTPUT = {9:3, 8:3, 4:2, 3:2, 2:1}
+INSTRUMENTOUTPUT = {9:3, 8:3, 4:2, 3:1, 2:1}
 class Song:
-    def __init__(self, songlength = 5, generations = 5, pattern = [3,2,9]):
+    def __init__(self, songlength = 5, generations = 5, pattern = [9, 3,2]):
         self.CONFIG =  neat.config.Config(neat.genome.DefaultGenome, 
                                             neat.reproduction.DefaultReproduction,
 							                neat.species.DefaultSpeciesSet,
