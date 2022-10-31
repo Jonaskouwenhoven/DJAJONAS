@@ -11,7 +11,7 @@ from midiutil import MIDIFile
 from mido import MidiFile
 from util import *
 
-INSTRUMENTDICT = {9:"Drum", 4:"Orgel", 2:"Bass", 8:"Synth", 3:"Guitar"}
+INSTRUMENTDICT = {9:"Drum", 10:"Orgel", 2:"Bass", 8:"Synth", 3:"Guitar", 7:"Jazz"}
 
 CONFIGINSTRUMENT = neat.config.Config(neat.genome.DefaultGenome, neat.reproduction.DefaultReproduction,
 							neat.species.DefaultSpeciesSet, neat.stagnation.DefaultStagnation,
@@ -43,6 +43,7 @@ class Instrument:
 		self.gens = gens
 		self.winner = None
 		self.gen = 0
+		self.bestRatings = []
 
 	
 	
@@ -52,29 +53,32 @@ class Instrument:
 		For each genome evaluate its fitness, in this case, as the mean squared error.
 		"""
 		newgenprint(self.gen, INSTRUMENTDICT[self.instrument])
+		ratings = []
 		for i, genome in genomes:
+			
 			net = neat.nn.FeedForwardNetwork.create(genome, config)
 			outputs = []
-			for input in np.asarray(self.input, dtype=object).T:
+			for i, input in enumerate(np.asarray(self.input, dtype=object).T):
+
 				output = net.activate(input)
 				outputs.append(output)
 
-			tracks = parseoutputs(outputs, self.outputs)
+			tracks = parseoutputs(outputs, self.outputs, self.instrument)
 			extraRating = random.uniform(0.001, 0.01)
 			rating = create_midi(tracks, self.tracknumber, channel = self.instrument)
+			ratings.append(rating)
 			genome.fitness = abs(rating-extraRating)
+		self.bestRatings.append(max(ratings))
 		self.gen+= 1
   
 	def adjustConfig(self):
-		print(self.input)
+
 		config = configparser.ConfigParser()
 		config.read("config/config_original")
 
 		config['DefaultGenome']['num_inputs'] = str(len(self.input))
 		config['DefaultGenome']['num_outputs'] = str((self.outputs))
-		# print(self.input)
-		# print(config['DefaultGenome']['num_inputs'])
-		# self.config = config
+
 		with open('config/testconfig', 'w') as configfile:
 			config.write(configfile)
 		self.config = readConfig("config/testconfig")
@@ -89,6 +93,7 @@ class Instrument:
 		# pop.add_reporter(neat.reporting.StdOutReporter(True))
 
 		winner = pop.run(self.eval_instrument, self.gens)
+
 		self.winner = [winner, stats]
 
 	def instrumenttrack(self):
@@ -100,7 +105,7 @@ class Instrument:
 
 			output = WINNER_NET.activate(input)
 			outputs.append(output)
-		track = parseoutputs(outputs, self.outputs)
+		track = parseoutputs(outputs, self.outputs, self.instrument)
 		create_midi(track, self.tracknumber, channel = self.instrument, rating = False)
   
 

@@ -53,12 +53,32 @@ def combinemidi(mid1, mid2):
 	mMid.save('FinalMidi.mid')
 	return True
 
+def read2(length):
+	songDf = pd.read_csv("Assets/Song.csv", index_col=0)
+	times = songDf['time'].to_list()
+	maxLength = max([len(songDf.loc[songDf['time'] == el]) for el in np.unique(times)])
+	tunes = []
+	for el in np.unique(times):
+		tempTrack = [0 for i in range(maxLength)]
+		temp_df = songDf.loc[songDf['time'] == el]
+		pitches = temp_df['pitch'].to_list()
+		for i, pitch in enumerate(pitches):
+			tempTrack[i] = pitch
+			
+		tunes.append(tempTrack)
+	tunes = tunes[:length]
+	
+	return np.asarray(tunes).T
+		# print(temp_df)
+		# print(len(temp_df))
+
 def read(x = 10):
 	'''
 	Just read the first track as input variables
 	'''
 	song  = pd.read_csv("Assets/Song.csv", index_col=0)
-	# print(song)
+	# print(np.unique(song['channel'].to_list()))
+	# print(song.columns)
 	track1 = song.loc[song['track'] == 0]['pitch'].to_list()[:x]
 	track2 = song.loc[song['track'] == 1]['pitch'].to_list()[:x]
 	track3 = song.loc[song['track'] == 2]['pitch'].to_list()[:x]
@@ -76,7 +96,7 @@ def evaluatePitch(tracks):
 		return 0
 	ding = True
 	while ding:
-		rating = int(input(f"\nHow do you evaluate this track? (1 - 10)?	 "))
+		rating = int(input(f"\nHow do you evaluate this track? {tracks} (1 - 10)?	 "))
 		if rating in options:
 			ding = False
 		else:
@@ -144,22 +164,58 @@ def combineTracks(track1_name, track2_name, output):
 	combined.tracks = track2.tracks + track1.tracks
 	combined.save(output)
 	return combined
+
+def parseDrums(outputs, length):
+	print(outputs, length)
+	total = []
+	for output in outputs:
+		templist = []
+
+		hihat = map(abs(output[0]), [0,1], [0,1])
+		if hihat == 0:
+			templist.append(0)
+		else:
+			templist.append(42)
+		tom = map(abs(output[1]), [0,1], [0,1])
+		if tom == 0:
+			templist.append(0)
+		else:
+			templist.append(41)
+		snare = map(abs(output[2]), [0,1], [0,1])
+		if snare == 0:
+			templist.append(0)
+		else:
+			templist.append(38)
+		total.append(templist)
+	return total
+		# print(output)
   
-def parseoutputs(output, length):
-    # print(output, length)
-    lists = []
-    for i in range(length):
-        ding = [map(abs(out), [0,1], [36, 82]) for out in np.asarray(output).T[i]]
-        lists.append(ding)
-    return lists
+  
+  
+def parseoutputs(output, length, channel):
+	# if channel == 9:
+	# 	# return parseDrums(output, length)
+
+
+	lists = []
+
+	pitchRange = [36, 82]
+	if channel == 9:
+		pitchRange = [30,47]
+	if channel == 2:
+		pitchRange = [35, 48]
+	for i in range(length):
+		ding = [map(abs(out), [0,1], pitchRange) for out in np.asarray(output).T[i]]
+		lists.append(ding)
+	return lists
   
   
 def create_midi(tracks, tracknumber, channel = 9, length = 1, rating = True):
 	if samePitch(tracks):
-		return 0.001
+		return 0.0
 
 	song = MIDIFile(numTracks=3,deinterleave=True)
-	song.addTempo(0,0,180)
+	song.addTempo(0,0,200)
 
 	for track in tracks:
 		for i, pitch in enumerate(track):
