@@ -53,7 +53,29 @@ def combinemidi(mid1, mid2):
 	mMid.save('FinalMidi.mid')
 	return True
 
+
+def combinemidis(midis, i):
+	midi1 = MidiFile(midis[0], clip=True)
+	midi2 = MidiFile(midis[1], clip=True)
+	midi3 = MidiFile(midis[2], clip=True)
+
+	mMid = MidiFile()
+
+	mMid.ticks_per_beat = midi1.ticks_per_beat
+	mMid.tracks = midi1.tracks + midi2.tracks
+ 
+	mFinal = MidiFile()
+	mFinal.ticks_per_bet = mMid.ticks_per_beat
+	mFinal.tracks = midi3.tracks+mMid.tracks
+	trackName = "MIDIFILES/augment/TempMidi_"+str(i)+".midi"
+	mFinal.save(trackName)
+	return True
+
+
 def read2(length):
+	'''
+	This function reads the midi file and returns the pitch and velocity of the first track
+	'''
 	songDf = pd.read_csv("Assets/Song.csv", index_col=0)
 	times = songDf['time'].to_list()
 	maxLength = max([len(songDf.loc[songDf['time'] == el]) for el in np.unique(times)])
@@ -96,7 +118,10 @@ def evaluatePitch(tracks):
 		return 0
 	ding = True
 	while ding:
-		rating = int(input(f"\nHow do you evaluate this track? {tracks} (1 - 10)?	 "))
+		try:
+			rating = int(input(f"\nHow do you evaluate this track? {tracks} (1 - 10)?	 "))
+		except:
+			rating = int(input(f"\nINVALID!: How do you evaluate this track? {tracks} (1 - 10)?	 "))
 		if rating in options:
 			ding = False
 		else:
@@ -245,3 +270,41 @@ def create_midi(tracks, tracknumber, channel = 9, length = 1, rating = True):
 		return rating
 	else:
 		return True
+
+
+def create_final_midi(songs, tracknumber):
+	'''
+	This function creates a midi file from a list of lists of lists of notes
+ 	'''
+	trackNames = []
+
+	for songfile in songs:
+		channels, instrument = list(songfile.keys()), list(songfile.values())
+		for j, input in enumerate(zip(channels, instrument)):
+			channel, trackers = input
+
+			# print(channel, )
+			song = MIDIFile(numTracks=3,deinterleave=True)
+			song.addTempo(0,0,200)
+			for track in trackers:
+				for i, pitch in enumerate(track):
+					song.addNote(0, channel, int(pitch), i, 1, 200)
+	
+			trackname = "MIDIFILES/augment/temp/Track_"+str(tracknumber+i+j+random.randint(0, 10000))+".midi"
+			trackNames.append(trackname)
+			with open(trackname, 'wb') as output_file:
+				song.writeFile(output_file)
+	print(trackNames)
+	combinemidis(trackNames, random.randint(0, 1000))
+
+def augment(array):
+	'''
+	This function takes in an array of midi files and augments them by adding a random number of tracks
+	'''
+	augmented = []
+	augmented.append(np.flipud(array))
+	rotim = np.rot90(array, k = 2)
+	augmented.append(rotim)
+	augmented.append(np.flipud(rotim))
+	return augmented
+	

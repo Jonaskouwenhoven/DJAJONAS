@@ -78,10 +78,10 @@ class Instrument:
 
 		config['DefaultGenome']['num_inputs'] = str(len(self.input))
 		config['DefaultGenome']['num_outputs'] = str((self.outputs))
-
-		with open('config/testconfig', 'w') as configfile:
+		file_name = 'config/testconfig_'+str(self.instrument)
+		with open(file_name, 'w') as configfile:
 			config.write(configfile)
-		self.config = readConfig("config/testconfig")
+		self.config = readConfig(file_name)
 
 
 
