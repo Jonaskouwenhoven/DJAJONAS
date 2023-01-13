@@ -15,7 +15,7 @@ class Song:
 											neat.stagnation.DefaultStagnation,
 											'config/config_original')
 		self.songlength = songlength
-		self.input = read2(self.songlength)
+		self.input = read(self.songlength)
 		self.testInput = list(self.input)
 		self.generations = generations
 		self.drumTrack = None

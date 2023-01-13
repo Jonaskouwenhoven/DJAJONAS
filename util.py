@@ -72,7 +72,7 @@ def combinemidis(midis, i):
 	return True
 
 
-def read2(length):
+def read(length):
 	'''
 	This function reads the midi file and returns the pitch and velocity of the first track
 	'''
@@ -94,20 +94,16 @@ def read2(length):
 		# print(temp_df)
 		# print(len(temp_df))
 
-def read(x = 10):
+def read2(x = 10):
 	'''
-	Just read the first track as input variables
+	Just read the first track as input variables Old
 	'''
 	song  = pd.read_csv("Assets/Song.csv", index_col=0)
-	# print(np.unique(song['channel'].to_list()))
-	# print(song.columns)
+
+
 	track1 = song.loc[song['track'] == 0]['pitch'].to_list()[:x]
 	track2 = song.loc[song['track'] == 1]['pitch'].to_list()[:x]
 	track3 = song.loc[song['track'] == 2]['pitch'].to_list()[:x]
-	# track4 = song.loc[song['track'] == 4]['pitch'].to_list()[:x]
-
-	# track4 = song.loc[song['track'] == ]
-
 	# print(new_song)
 	return track1, track2, track3
 
