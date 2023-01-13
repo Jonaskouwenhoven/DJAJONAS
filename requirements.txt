@@ -1,0 +1,10 @@
+matplotlib==3.5.2
+MIDIUtil==1.2.1
+mido==1.2.10
+neat==0.4.1
+neat_python==0.92
+numpy==1.22.4
+pandas==1.4.3
+pydub==0.25.1
+scipy==1.10.0
+soundfile==0.11.0
